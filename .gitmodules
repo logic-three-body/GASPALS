@@ -1,0 +1,15 @@
+[submodule "References/ControlOperators"]
+	path = References/ControlOperators
+	url = git@github.com:logic-three-body/ControlOperators.git
+[submodule "References/Motion-Matching"]
+	path = References/Motion-Matching
+	url = git@github.com:logic-three-body/Motion-Matching.git
+[submodule "References/Learned-Motion-Matching"]
+	path = References/Learned-Motion-Matching
+	url = git@github.com:logic-three-body/Learned-Motion-Matching.git
+[submodule "References/Unreal-3rd-Person-Parkour"]
+	path = References/Unreal-3rd-Person-Parkour
+	url = git@github.com:logic-three-body/Unreal-3rd-Person-Parkour.git
+[submodule "References/Learned_Motion_Matching_Training"]
+	path = References/Learned_Motion_Matching_Training
+	url = git@github.com:logic-three-body/Learned_Motion_Matching_Training.git

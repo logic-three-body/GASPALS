@@ -75,6 +75,3 @@ DerivedDataCache/*
 
 # Packaged files
 Package/*
-
-# Local shadow-mode reference clones
-References/*
