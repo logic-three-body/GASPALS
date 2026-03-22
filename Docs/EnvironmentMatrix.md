@@ -2,31 +2,52 @@
 
 ## Host Runtime Inventory
 
-| Runtime | Installed Version | Path | Notes |
+| Runtime | Detected Version | Path | Selected Usage |
 | --- | --- | --- | --- |
-| Unreal Engine | 5.7.2 | `D:\Program Files\Epic Games\UE_5.7` | Preferred exact-match host for `GASPALS` and any repo that declares UE 5.7. |
-| Unreal Engine | 5.5.4 | `D:\Program Files\Epic Games\UE_5.5` | Preferred exact-match host for UE 5.5 repos when source build is not required. |
-| Unreal Engine | 5.3.2 | `D:\Program Files\Epic Games\UE_5.3` | Preferred exact-match host for `Learned_Motion_Matching_UE5`. |
-| Unreal Engine (source) | 5.5.3 | `D:\UE\UnrealEngine` | Only use when a repo explicitly needs source-level customization or engine patching. |
-| Unity | 2021.1.22f1c1 | `D:\Program Files\Unity 2021.1.22f1c1` | Matches the user-reported Unity installation; no cloned repo currently includes a full Unity project. |
-| Git | 2.46.0.windows.1 | system | SSH clone flow verified against GitHub. |
-| Conda | 25.7.0 | system | Use isolated envs for Python/ML repos. |
+| Unreal Engine | 5.3.2 | `D:\Program Files\Epic Games\UE_5.3` | `Learned_Motion_Matching_UE5` companion |
+| Unreal Engine | 5.4.x | `D:\Program Files\Epic Games\UE_5.4` | `Unreal-3rd-Person-Parkour` primary target |
+| Unreal Engine | 5.5.x | `D:\Program Files\Epic Games\UE_5.5` | `Unreal-3rd-Person-Parkour` fallback target |
+| Unreal Engine | 5.7.x | `D:\Program Files\Epic Games\UE_5.7` | `GASPALS` host engine |
+| Unity | 2021.1.22f1c1 | `D:\Program Files\Unity 2021.1.22f1c1\Editor\Unity.exe` | `Learned-Motion-Matching` sample |
+| Conda | available | system | shared Python baseline `gaspals_ref_py311` |
+| uv | available | system | `ControlOperators` |
+| Git LFS | available | system | `Learned_Motion_Matching_Training`, `Parkour` assets |
 
-## Repository Matrix
+## Reference Matrix
 
-| Repo Name | Repo Type | Detected Version | Candidate Installed Engines | Installed Matching Version? | Selected Runtime Version | Selected Runtime Rationale | Risk Notes | Divergence From Upstream |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `GASPALS` | UE project + content plugin | `EngineAssociation = 5.7` from `GASPALS.uproject` | `UE 5.7.2`, `UE 5.5.4`, `UE 5.3.2`, source `UE 5.5.3` | Yes, `UE 5.7.2` | Epic `UE 5.7.2` | Exact semantic match on installed Epic build; no source-only requirement discovered in Phase 0. | Blueprint/content-heavy project; runtime insertion must stay additive. | Exact match to `PolygonHive/GASPALS` at audited HEAD `a6d3812545063f0954b4b80d632848f2eb8032e2`. |
-| `ControlOperators` | Python / ML | `requires-python >= 3.11`; `torch`, `torchvision`, `raylib`, `clip` from `pyproject.toml` | N/A | N/A | Isolated conda env with Python 3.11+ | Repo publishes explicit Python floor and Windows/Linux support; keep separate from host UE env. | No lockstep conda env file; depends on CLIP git source and external demo data. | Diverged from `gouruiyu/ControlOperators`; 2 modified files. |
-| `Motion-Matching` | Native C++ / algorithm reference | No explicit engine metadata; README documents `raylib`/`raygui` C++ demo and Python training scripts in `resources/` | N/A | N/A | Standalone native toolchain only | This repo is algorithm/training reference, not an engine runtime. | External Ubisoft dataset required to regenerate database/training inputs. | Exact match to `orangeduck/Motion-Matching` at audited HEAD `57b7250e0d34a4e456a34d47e24c2f05fdcc711e`. |
-| `Learned-Motion-Matching` | Python training reference with external Unity runtime path | No `ProjectVersion.txt` in repo; README describes PyTorch training and ONNX export back into a Unity/Barracuda sample | Unity 2021.1.22f1c1 is available, but no Unity project files are present in this clone | No local project metadata to match against | Isolated Python env for training only | The cloned repo is the training/export half; Unity runtime remains a reference concept from the README. | Unity sample project is not part of this checkout. | Exact match to `pau1o-hs/Learned-Motion-Matching` at audited HEAD `6853000f7d3443592c13161bdeaa4f071bebe488`. |
-| `Unreal-3rd-Person-Parkour` | UE C++ runtime reference | No explicit semantic version; `.uproject` stores machine-local GUID `EngineAssociation = {B243EBF4-67BF-403D-859A-041946B8C4DA}` | `UE 5.7.2`, `UE 5.5.4`, `UE 5.3.2`, source `UE 5.5.3` | Unknown | Defer until editor open/build metadata confirms exact engine | Hard rule is no version guessing; keep audit-only until engine compatibility is proven from project metadata or a successful open/build. | Project depends on UE-only sample assets and Git LFS. | Exact match to `CoffeeVampir3/Unreal-3rd-Person-Parkour` at audited HEAD `aba88f8e5dac03db2e538b6e78dabbcce001cb4d`. |
-| `Learned_Motion_Matching_Training` | Mixed C++ preprocessing + Python training + UE companion submodule | README/runbook require Python 3.10+, VS C++ tooling, Autodesk FBX SDK, Git LFS | `UE 5.3.2` via companion submodule; other host engines available | Yes, for companion UE project only | Isolated Python env plus Epic `UE 5.3.2` for companion runtime | Root repo is training pipeline; runtime handoff is through the bundled UE submodule that declares UE 5.3. | No root env file; operational scripts and benchmark docs are fork-only additions. | Diverged heavily from `E1P3/Learned_Motion_Matching_Training`; 26 changed files plus submodule wiring. |
-| `Learned_Motion_Matching_UE5` | UE runtime submodule | `EngineAssociation = 5.3` from `Testing.uproject` | `UE 5.3.2`, `UE 5.5.4`, `UE 5.7.2`, source `UE 5.5.3` | Yes, `UE 5.3.2` | Epic `UE 5.3.2` | Exact semantic match on installed Epic build; plugin set depends on NNE runtime availability. | Nested under training repo; currently audited as a companion runtime, not a host replacement. | Exact match to `E1P3/Learned_Motion_Matching_UE5` at audited HEAD `40f8b9329b7253d387f4b0bab662d09c990c86c4`. |
+| Case | Repo | Runtime | Automation Entry | Current Status |
+| --- | --- | --- | --- | --- |
+| `10` | `References/Learned_Motion_Matching_Training` | `conda gaspals_ref_py311` + repo-local `.venvs/case-*` | `Tools/reference/cases/Case-10-11-LMM.ps1` | PASS |
+| `11` | `References/Learned_Motion_Matching_Training/Learned_Motion_Matching_UE5` | `UE 5.3.2` | `Tools/reference/cases/Case-10-11-LMM.ps1` | PASS |
+| `20` | `References/ControlOperators` | `uv` on Python 3.11 | `Tools/reference/cases/Case-20-ControlOperators.ps1` | PASS |
+| `30` | `References/Motion-Matching` | Python 3.11 + raylib + g++/make | `Tools/reference/cases/Case-30-MotionMatching.ps1` | PASS |
+| `31` | `References/Learned-Motion-Matching` | Python 3.11 + Unity 2021.1.22f1c1 | `Tools/reference/cases/Case-31-LearnedMotionMatching.ps1` | PASS |
+| `40` | `References/Unreal-3rd-Person-Parkour` | `UE 5.4`, fallback `UE 5.5` | `Tools/reference/cases/Case-40-Parkour.ps1` | PASS |
 
-## Selection Policy Applied
+## Startup Matrix
 
-1. Prefer exact-match Epic Launcher engines.
-2. Fall back to exact-match source build only when the repo or task needs source-level changes.
-3. If no semantic version is discoverable, do not guess; keep the repo audit-only and record the mismatch.
-4. Keep Python/ML repos in isolated conda environments rather than relying on the missing default `py` launcher.
+| Case | Primary Startup Method |
+| --- | --- |
+| `10` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 10 -Smoke` |
+| `11` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 11 -Smoke` or open `Learned_Motion_Matching_UE5\Testing.uproject` with `UE_5.3` |
+| `20` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 20 -Smoke` or run `References\ControlOperators\.venv\Scripts\python.exe controller.py` |
+| `30` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 30 -Smoke` or launch `References\Motion-Matching\controller.exe --lmm-enabled` after build |
+| `31` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 31 -Smoke` or open `Saved\_l31\Learned Motion Matching` with Unity 2021.1.22f1c1 |
+| `40` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 40 -Smoke` or open `Saved\ReferenceCases\<timestamp>\case-40\ParkourSidecar\GameAnimationSample.uproject` with UE 5.4 |
+
+## External Dependencies
+
+| Dependency | Preferred Source | Used By | Notes |
+| --- | --- | --- | --- |
+| Autodesk FBX SDK 2020.3.2 | Autodesk APS FBX SDK page | `10` | script-first install attempt, fallback to manual if needed |
+| raylib 5.5 win64 mingw-w64 | GitHub release zip | `30` | copied into `C:\raylib` |
+| Ubisoft La Forge animation dataset | GitHub mirror / release asset | `30` | only the needed BVH subset is downloaded |
+| `lmm-v0.3.0.zip` | GitHub release asset | `31` | release sample for Unity/PyTorch flow |
+| Barracuda package | Unity manifest / local sample config | `31` | Unity sample requires single-file ONNX export plus compatibility handling |
+
+## Policy
+
+1. All orchestration goes through `Tools/reference/Setup-ReferenceWalkthroughCases.ps1` and `Tools/reference/Test-ReferenceWalkthroughCases.ps1`.
+2. All logs, reports, downloads, and sidecar projects live under `Saved/ReferenceCases/`.
+3. `Motion-Matching` and `Learned-Motion-Matching` are validated as full train-to-inference pipelines, not as static repo snapshots.
+4. `PASS`, `MANUAL`, and `BLOCKED` must be recorded in the walkthrough docs and the generated reports.
