@@ -76,3 +76,5 @@ DerivedDataCache/*
 # Packaged files
 Package/*
 Docs/Plans/
+.idea/
+.vsconfig
