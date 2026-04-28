@@ -1,0 +1,432 @@
+[
+  {
+    "package_name": "/GASPALS/LevelPrototyping/Teleporter_Destination",
+    "asset_name": "Teleporter_Destination",
+    "module": "00_Other"
+  },
+  {
+    "package_name": "/GASPALS/LevelPrototyping/Teleporter_Sender",
+    "asset_name": "Teleporter_Sender",
+    "module": "00_Other"
+  },
+  {
+    "package_name": "/GASPALS/LevelPrototyping/LevelButton",
+    "asset_name": "LevelButton",
+    "module": "00_Other"
+  },
+  {
+    "package_name": "/GASPALS/Audio/Foley/DABP_FoleyAudioBank",
+    "asset_name": "DABP_FoleyAudioBank",
+    "module": "09_Audio"
+  },
+  {
+    "package_name": "/GASPALS/Audio/Foley/I_FoleyAudioBankInterface",
+    "asset_name": "I_FoleyAudioBankInterface",
+    "module": "09_Audio"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/Data/BPI_InteractionTransform",
+    "asset_name": "BPI_InteractionTransform",
+    "module": "07_Components_Cameras"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Blueprints/Data/PDA_OverlayBase",
+    "asset_name": "PDA_OverlayBase",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Blueprints/Data/PDA_OverlayPose",
+    "asset_name": "PDA_OverlayPose",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/Cameras/BPI_GameplayCamera",
+    "asset_name": "BPI_GameplayCamera",
+    "module": "07_Components_Cameras"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/Components/BP_TraversalTraceComponent",
+    "asset_name": "BP_TraversalTraceComponent",
+    "module": "07_Components_Cameras"
+  },
+  {
+    "package_name": "/GASPALS/LevelPrototyping/LevelBlock",
+    "asset_name": "LevelBlock",
+    "module": "00_Other"
+  },
+  {
+    "package_name": "/GASPALS/LevelPrototyping/LevelVisuals",
+    "asset_name": "LevelVisuals",
+    "module": "00_Other"
+  },
+  {
+    "package_name": "/GASPALS/LevelPrototyping/LevelBlock_Traversable",
+    "asset_name": "LevelBlock_Traversable",
+    "module": "00_Other"
+  },
+  {
+    "package_name": "/GASPALS/Widgets/WidgetData/StillCam",
+    "asset_name": "StillCam",
+    "module": "08_Widgets"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimModifiers/AM_FootSpeed_L",
+    "asset_name": "AM_FootSpeed_L",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimModifiers/AM_FootSpeed_R",
+    "asset_name": "AM_FootSpeed_R",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimModifiers/AM_BakePhaseCurveFromFootstepNotifies",
+    "asset_name": "AM_BakePhaseCurveFromFootstepNotifies",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimModifiers/AM_MoveData_Speed",
+    "asset_name": "AM_MoveData_Speed",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimModifiers/AM_DistanceFromLedge",
+    "asset_name": "AM_DistanceFromLedge",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimModifiers/AM_OrientationWarpingAlpha",
+    "asset_name": "AM_OrientationWarpingAlpha",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimModifiers/AM_RateWarpingAlpha",
+    "asset_name": "AM_RateWarpingAlpha",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Characters/UEFN_Mannequin/Animations/MotionMatchingData/Channels/PSC_Traversal_Head",
+    "asset_name": "PSC_Traversal_Head",
+    "module": "06_Characters_Rigs"
+  },
+  {
+    "package_name": "/GASPALS/Characters/UEFN_Mannequin/Animations/MotionMatchingData/Channels/PSC_Traversal_Pos",
+    "asset_name": "PSC_Traversal_Pos",
+    "module": "06_Characters_Rigs"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/Data/BFL_DebugShapes",
+    "asset_name": "BFL_DebugShapes",
+    "module": "07_Components_Cameras"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_NotifyState_MontageBlendOut",
+    "asset_name": "BP_NotifyState_MontageBlendOut",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Blueprints/AnimModifiers/Create_LayeringCurves",
+    "asset_name": "Create_LayeringCurves",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent",
+    "asset_name": "BP_AnimNotify_FoleyEvent",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Jump",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Jump",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Walk_L",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Walk_L",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Walk_R",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Walk_R",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Land",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Land",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Run_L",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Run_L",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Run_R",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Run_R",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Scuff_L",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Scuff_L",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Scuff_R",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Scuff_R",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Handplant_R",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Handplant_R",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_AnimNotify_FoleyEvent_Handplant_L",
+    "asset_name": "BP_AnimNotify_FoleyEvent_Handplant_L",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/Cameras/CameraDirector_SandboxCharacter",
+    "asset_name": "CameraDirector_SandboxCharacter",
+    "module": "07_Components_Cameras"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Blueprints/AnimModifiers/Copy_Curves_Pose",
+    "asset_name": "Copy_Curves_Pose",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/CBP_SandboxCharacter",
+    "asset_name": "CBP_SandboxCharacter",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/PreCMCTick",
+    "asset_name": "PreCMCTick",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/AnimNotifies/BP_NotifyState_EarlyTransition",
+    "asset_name": "BP_NotifyState_EarlyTransition",
+    "module": "02_AnimNotifies"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/CBP_SandboxCharacter_SetupComparison",
+    "asset_name": "CBP_SandboxCharacter_SetupComparison",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/CBP_SandboxCharacter_UE4_Mannequin",
+    "asset_name": "CBP_SandboxCharacter_UE4_Mannequin",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/CBP_SandboxCharacter_Metahuman_Bodies",
+    "asset_name": "CBP_SandboxCharacter_Metahuman_Bodies",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/CBP_SandboxCharacter_RetargetShowcase_Mannequins",
+    "asset_name": "CBP_SandboxCharacter_RetargetShowcase_Mannequins",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/CBP_SandboxCharacter_Manny",
+    "asset_name": "CBP_SandboxCharacter_Manny",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/CBP_SandboxCharacter_Quinn",
+    "asset_name": "CBP_SandboxCharacter_Quinn",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/CBP_SandboxCharacter_Metahuman_Kellan",
+    "asset_name": "CBP_SandboxCharacter_Metahuman_Kellan",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/PC_Sandbox",
+    "asset_name": "PC_Sandbox",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/GM_Sandbox",
+    "asset_name": "GM_Sandbox",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Blueprints/AnimModifiers/Create_Curves",
+    "asset_name": "Create_Curves",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Blueprints/AnimModifiers/Copy_Curves",
+    "asset_name": "Copy_Curves",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/Components/BP_TraversalTester",
+    "asset_name": "BP_TraversalTester",
+    "module": "07_Components_Cameras"
+  },
+  {
+    "package_name": "/GASPALS/Characters/UEFN_Mannequin/Rigs/ABP_UEFN_Mannequin_PostProcess",
+    "asset_name": "ABP_UEFN_Mannequin_PostProcess",
+    "module": "06_Characters_Rigs"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/ALI_OverlayBase",
+    "asset_name": "ALI_OverlayBase",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/ALI_OverlayPose",
+    "asset_name": "ALI_OverlayPose",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Props/Meshes/Bow_AnimBP",
+    "asset_name": "Bow_AnimBP",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/RetargetedCharacters/ABP_GenericRetarget",
+    "asset_name": "ABP_GenericRetarget",
+    "module": "03_RetargetedCharacters"
+  },
+  {
+    "package_name": "/GASPALS/MetaHumans/Common/Face/Face_AnimBP",
+    "asset_name": "Face_AnimBP",
+    "module": "05_MetaHumans"
+  },
+  {
+    "package_name": "/GASPALS/MetaHumans/Common/Male/Medium/NormalWeight/Tops/Hoodie/Meshes/m_med_nrw_top_hoodie_Skeleton_AnimBP",
+    "asset_name": "m_med_nrw_top_hoodie_Skeleton_AnimBP",
+    "module": "05_MetaHumans"
+  },
+  {
+    "package_name": "/GASPALS/Blueprints/ABP_SandboxCharacter",
+    "asset_name": "ABP_SandboxCharacter",
+    "module": "01_Core"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/ABP_LayerBlending",
+    "asset_name": "ABP_LayerBlending",
+    "module": "04_OverlaySystem"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/ABP_OverlayPose_Base",
+    "asset_name": "ABP_OverlayPose_Base",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Rifle/ABP_Overlay_Rifle",
+    "asset_name": "ABP_Overlay_Rifle",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Pistol2H/ABP_Overlay_Pistol2H",
+    "asset_name": "ABP_Overlay_Pistol2H",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Pistol1H/ABP_Overlay_Pistol1H",
+    "asset_name": "ABP_Overlay_Pistol1H",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Injured/ABP_Overlay_Injured",
+    "asset_name": "ABP_Overlay_Injured",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/HandsTied/ABP_Overlay_HandsTied",
+    "asset_name": "ABP_Overlay_HandsTied",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Default/ABP_OverlayPose_Default",
+    "asset_name": "ABP_OverlayPose_Default",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Box/ABP_Overlay_Box",
+    "asset_name": "ABP_Overlay_Box",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Bow/ABP_Overlay_Bow",
+    "asset_name": "ABP_Overlay_Bow",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Binoculars/ABP_Overlay_Binoculars",
+    "asset_name": "ABP_Overlay_Binoculars",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Barrel/ABP_Overlay_Barrel",
+    "asset_name": "ABP_Overlay_Barrel",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Bases/ABP_OverlayBase_Base",
+    "asset_name": "ABP_OverlayBase_Base",
+    "module": "04_OverlaySystem/Bases"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Bases/Masculine/ABP_OverlayBase_Masculine",
+    "asset_name": "ABP_OverlayBase_Masculine",
+    "module": "04_OverlaySystem/Bases"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Bases/GASP/ABP_OverlayBase_GASP",
+    "asset_name": "ABP_OverlayBase_GASP",
+    "module": "04_OverlaySystem/Bases"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Bases/Feminine/ABP_OverlayBase_Feminine",
+    "asset_name": "ABP_OverlayBase_Feminine",
+    "module": "04_OverlaySystem/Bases"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Bases/ALS/ABP_OverlayBase_ALS",
+    "asset_name": "ABP_OverlayBase_ALS",
+    "module": "04_OverlaySystem/Bases"
+  },
+  {
+    "package_name": "/GASPALS/OverlaySystem/Overlays/Poses/Torch/ABP_Overlay_Torch",
+    "asset_name": "ABP_Overlay_Torch",
+    "module": "04_OverlaySystem/Poses"
+  },
+  {
+    "package_name": "/GASPALS/MetaHumans/Common/Female/Medium/NormalWeight/Shoes/CasualSneakers/mh_casualsneakers_Skeleton_ABP",
+    "asset_name": "mh_casualsneakers_Skeleton_ABP",
+    "module": "05_MetaHumans"
+  },
+  {
+    "package_name": "/GASPALS/Characters/UE5_Mannequins/Rigs/ABP_Manny_PostProcess",
+    "asset_name": "ABP_Manny_PostProcess",
+    "module": "06_Characters_Rigs"
+  },
+  {
+    "package_name": "/GASPALS/MetaHumans/Common/Face/Face_PostProcess_AnimBP",
+    "asset_name": "Face_PostProcess_AnimBP",
+    "module": "05_MetaHumans"
+  },
+  {
+    "package_name": "/GASPALS/MetaHumans/Kellan/Face/ABP_Kellan_Face_PostProcess",
+    "asset_name": "ABP_Kellan_Face_PostProcess",
+    "module": "05_MetaHumans"
+  },
+  {
+    "package_name": "/GASPALS/MetaHumans/Common/Male/Medium/NormalWeight/Body/m_med_nrw_animbp",
+    "asset_name": "m_med_nrw_animbp",
+    "module": "05_MetaHumans"
+  },
+  {
+    "package_name": "/GASPALS/Characters/UE5_Mannequins/Rigs/ABP_Quinn_PostProcess",
+    "asset_name": "ABP_Quinn_PostProcess",
+    "module": "06_Characters_Rigs"
+  }
+]
