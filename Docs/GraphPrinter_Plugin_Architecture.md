@@ -4,7 +4,21 @@
 
 ---
 
-## 1. 插件基础模块架构 (Plugin Architecture)
+## 1. 插件核心设计目标：图片即代码 (The Ultimate Goal)
+
+虽然在我们的自动化工作流中，GraphPrinter 被深度利用为一个“无情的高清截图机器”，但该插件最初的终极设计目标远不止于此——它的核心理念是：**“让图片等于代码，让代码所见即所得”**。
+
+它通过内部的 `TextChunkHelper` 模块，实现了以下两大核心能力：
+1. **导出 (Print)**：无视屏幕分辨率，按 1:1 完美比例精准裁剪蓝图节点并导出为无 UI 干扰的 PNG。
+2. **复原 (Restore)**：在导出时，系统会将选中的**所有蓝图节点的实际代码逻辑（复制的文本数据），以不可见的元数据 (Text Chunk) 形式嵌入到 PNG 图片文件内部**！
+
+**💡 在本自动化工作流中的巨大价值：**
+由于自动化 Python 脚本发送的指令是 `PrintAllAreaOfWidget`，底层 C++ 会首先执行 `SelectAllNodes()` 选中整张图表后再进行截图。这意味着，我们批量生成的那些高清蓝图 PNG，**内部均已封装了完整的真实节点逻辑代码！**
+使用者不仅可以将这些截图喂给 AI 进行视觉分析，还可以直接将任何一张 PNG 拖拽回 Unreal Engine 的蓝图编辑器中，图片会瞬间被还原成最初的真实节点拓扑！
+
+---
+
+## 2. 插件基础模块架构 (Plugin Architecture)
 
 GraphPrinter 采用了基于注册表（Registry）和模块化打印机（Printers）的高度可扩展架构。当接收到截图指令时，系统会根据控件类型和打印机的优先级自动寻找最匹配的截图实现。
 
@@ -42,11 +56,11 @@ graph TD
 
 ---
 
-## 2. 自动化适配的底层源码修复 (The Fixes)
+## 3. 自动化适配的底层源码修复 (The Fixes)
 
 在全自动化脚本通过 `AssetToolsHelpers.open_editor_for_assets` 打开蓝图时，往往会导致焦点错乱或渲染未完全就绪。为了保证截图完全符合要求，我们在 C++ 层面进行了两项核心改动：
 
-### 2.1 优先级强夺与降权拦截 (Priority Override)
+### 3.1 优先级强夺与降权拦截 (Priority Override)
 原版插件中，`DetailsPanelPrinter` 的优先级（200）甚至高于 `GenericGraphPrinter`（0）。在无人值守模式下，如果图表未完全获取焦点，截图模块经常会“退而求其次”抓取到蓝图的 Details（细节）面板。
 
 **修复方案**：
@@ -54,7 +68,7 @@ graph TD
 - `GenericGraphPrinter.h` -> `GenericGraphPrinterPriority = 1000;`（确保第一顺位）
 - `DetailsPanelPrinter.h` -> `DetailsPanelPrinterPriority = -1000;`（彻底降权打入冷宫）
 
-### 2.2 强制焦点回退机制 (Fallback Logic)
+### 3.2 强制焦点回退机制 (Fallback Logic)
 原版的 `FindTargetWidgetFromSearchTarget` 函数要求传入的 `SearchTarget` 控件必须拥有 `DockingTabStack` 父节点。由于自动化脚本打开窗口的瞬间层级树可能不同，导致此搜索失败返回 `nullptr`。
 
 **修复方案**：
@@ -77,7 +91,7 @@ static TSharedPtr<SGraphEditorImpl> FindTargetWidgetFromSearchTarget(const TShar
 
 ---
 
-## 3. 全自动截图工作流原理解析 (Automated Pipeline)
+## 4. 全自动截图工作流原理解析 (Automated Pipeline)
 
 我们的自动化工作流利用了 Python `asyncio` 和引擎内部的 Slate Tick 状态机，实现了 **不锁死主线程、严格等候渲染完成、主动接收反馈** 的稳健架构。
 
@@ -117,14 +131,14 @@ sequenceDiagram
 
 ---
 
-## 4. 扩展与调试指南 (Extending & Debugging)
+## 5. 扩展与调试指南 (Extending & Debugging)
 
-### 4.1 新增特定 UI 的截图器
+### 5.1 新增特定 UI 的截图器
 如果你需要在自动化管线中截取其他的自定义面板（例如动画重定向面板），你可以：
 1. 在 `WidgetPrinter` 模块中新建一个继承自 `UWidgetPrinter` 的类。
 2. 覆盖 `CheckIfSupported` 方法，匹配 `SearchTarget` 的特定的 Slate 类名（例如 `SRetargetSources`）。
 3. 分配一个极高的 Priority 常量（如 2000），重新编译。在自动化 Python 脚本中切换好相应的 UE 标签页即可自动截图。
 
-### 4.2 WebSocket 命令扩展
+### 5.2 WebSocket 命令扩展
 `GraphPrinterRemoteControl` 目前响应诸如 `PrintAllAreaOfWidget`、`RestoreWidget` 等字符串命令。你可以修改 `GraphPrinterRemoteControlReceiver.cpp` 的 `OnMessageReceived` 函数，解析 JSON 格式来传递更高阶的参数，例如：
 `{"Command": "PrintAllAreaOfWidget", "Padding": 50.0, "Scale": 2.0}`。
