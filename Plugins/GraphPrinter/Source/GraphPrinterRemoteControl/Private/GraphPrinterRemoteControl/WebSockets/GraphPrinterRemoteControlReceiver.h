@@ -8,6 +8,8 @@ class IWebSocket;
 
 namespace GraphPrinter
 {
+	class FPrintGraphModulesJob;
+
 	/**
 	 * A receiver class that utilizes the functionality of this plugin externally via a web socket.
 	 * 
@@ -35,10 +37,15 @@ namespace GraphPrinter
 		void HandleOnConnectionError(const FString& Error);
 		void HandleOnClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
 		void HandleOnMessage(const FString& Message);
+		void HandleLegacyMessage(const FString& Message);
+		void HandleJsonMessage(const FString& Message);
 		
 	private:
 		// The currently connected web socket instance.
 		TSharedPtr<IWebSocket> Socket;
+
+		// The currently running module print job, if any.
+		TSharedPtr<FPrintGraphModulesJob> ActiveModulesJob;
 
 		// The unique instance of this class.
 		static TUniquePtr<FGraphPrinterRemoteControlReceiver> Instance;

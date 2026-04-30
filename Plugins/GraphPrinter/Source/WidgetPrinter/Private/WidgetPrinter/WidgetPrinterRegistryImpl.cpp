@@ -25,10 +25,14 @@ namespace GraphPrinter
 		
 		// IWidgetPrinterRegistry interface.
 		virtual UWidgetPrinter* FindAvailableWidgetPrinter(UPrintWidgetOptions*  Options) const override;
+		virtual UWidgetPrinter* FindAvailableWidgetPrinter(
+			UPrintWidgetOptions* Options,
+			const TFunctionRef<bool(const TSubclassOf<UWidgetPrinter>& WidgetPrinterClass)>& ClassPredicate
+		) const override;
 		virtual UWidgetPrinter* FindAvailableWidgetPrinter(URestoreWidgetOptions* Options) const override;
 		virtual TOptional<FSupportedWidget> CheckIfSupported(const TSharedRef<SWidget>& TestWidget) const override;
 		// End of IWidgetPrinterRegistry interface.
-	
+
 	private:
 		// Called when the editor mainframe has been created.
 		void HandleOnMainFrameCreationFinished(TSharedPtr<SWindow> InRootWindow, bool bIsNewProjectWindow);
@@ -75,9 +79,27 @@ namespace GraphPrinter
 	
 	UWidgetPrinter* FWidgetPrinterRegistryImpl::FindAvailableWidgetPrinter(UPrintWidgetOptions* Options) const
 	{
+		return FindAvailableWidgetPrinter(
+			Options,
+			[](const TSubclassOf<UWidgetPrinter>&)
+			{
+				return true;
+			}
+		);
+	}
+
+	UWidgetPrinter* FWidgetPrinterRegistryImpl::FindAvailableWidgetPrinter(
+		UPrintWidgetOptions* Options,
+		const TFunctionRef<bool(const TSubclassOf<UWidgetPrinter>& WidgetPrinterClass)>& ClassPredicate
+	) const
+	{
 		for (const auto& WidgetPrinterClass : WidgetPrinterClasses)
 		{
 			if (!IsValid(WidgetPrinterClass))
+			{
+				continue;
+			}
+			if (!ClassPredicate(WidgetPrinterClass))
 			{
 				continue;
 			}

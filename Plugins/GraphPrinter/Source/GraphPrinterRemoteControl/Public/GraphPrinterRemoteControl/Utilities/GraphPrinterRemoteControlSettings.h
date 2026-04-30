@@ -38,6 +38,10 @@ public:
 	// Constructor.
 	UGraphPrinterRemoteControlSettings();
 
+	// Forces the remote-control socket to reconnect using the current settings.
+	UFUNCTION(CallInEditor, Category = "Remote Control")
+	void Reconnect();
+
 	// UObject interface.
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	// End of UObject interface.

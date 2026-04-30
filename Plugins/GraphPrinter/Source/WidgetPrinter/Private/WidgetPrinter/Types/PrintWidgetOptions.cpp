@@ -24,6 +24,8 @@ UPrintWidgetOptions::UPrintWidgetOptions()
 	, RenderingScale(1.f)
 	, FilteringMode(TF_Default)
 	, SearchTarget(nullptr)
+	, bFailIfWidgetInfoNotWritten(false)
+	, PrinterClassName(TEXT(""))
 {
 	ImageWriteOptions.bAsync = true;
 	ImageWriteOptions.bOverwriteFile = false;
@@ -46,6 +48,10 @@ UPrintWidgetOptions* UPrintWidgetOptions::Duplicate(const TSubclassOf<UPrintWidg
 		Destination->ImageWriteOptions = ImageWriteOptions;
 		Destination->OutputDirectoryPath = OutputDirectoryPath;
 		Destination->SearchTarget = SearchTarget;
+		Destination->bFailIfWidgetInfoNotWritten = bFailIfWidgetInfoNotWritten;
+		Destination->PrinterClassName = PrinterClassName;
+		Destination->TextChunkDiagnostics = TextChunkDiagnostics;
+		Destination->OnPrintFinished = OnPrintFinished;
 	}
 
 	return Destination;

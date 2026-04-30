@@ -7,7 +7,7 @@ import os, json, shutil, glob, time
 
 GRAPH_PRINTER_DIR = r"d:\UE\COLMM\GASPALS\Saved\GraphPrinter"
 OUTPUT_ROOT       = r"d:\UE\COLMM\GASPALS\Saved\Screenshots\Blueprints"
-ASSET_LIST        = r"d:\UE\COLMM\GASPALS\Tools\asset_list.json"
+ASSET_LIST        = r"d:\UE\COLMM\GASPALS\Saved\Screenshots\Blueprints\_asset_list.json"
 
 with open(ASSET_LIST, "r", encoding="utf-8") as f:
     assets = json.load(f)

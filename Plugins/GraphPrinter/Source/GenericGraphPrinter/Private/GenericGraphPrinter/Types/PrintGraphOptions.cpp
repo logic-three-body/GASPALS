@@ -11,6 +11,7 @@ UPrintGraphOptions::UPrintGraphOptions()
 	: Super()
 	, Padding(0.f)
 	, bDrawOnlyGraph(false)
+	, FilenameBaseOverride(TEXT(""))
 {
 }
 
@@ -21,6 +22,8 @@ UPrintWidgetOptions* UPrintGraphOptions::Duplicate(const TSubclassOf<UPrintWidge
 	{
 		CastedDestination->Padding = Padding;
 		CastedDestination->bDrawOnlyGraph = bDrawOnlyGraph;
+		CastedDestination->ExplicitNodesToPrint = ExplicitNodesToPrint;
+		CastedDestination->FilenameBaseOverride = FilenameBaseOverride;
 	}
 	
 	return Destination;

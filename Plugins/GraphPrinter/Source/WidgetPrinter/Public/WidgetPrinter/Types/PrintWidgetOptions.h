@@ -17,6 +17,34 @@ class SWidget;
 enum TextureFilter;
 #endif
 
+namespace GraphPrinter
+{
+	struct FTextChunkDiagnostics
+	{
+		FString GraphClass;
+		FString GraphPath;
+		TArray<FString> NodeClasses;
+		TArray<FString> NodeTitles;
+		int32 NodeCount = 0;
+		int32 ExportedTextLength = 0;
+		bool bExportedTextEmpty = true;
+		bool bCanImportNodesFromText = false;
+		FString FailureStage;
+	};
+
+	struct FPrintWidgetResult
+	{
+		bool bSucceeded = false;
+		FString Filename;
+		FString PrinterClassName;
+		bool bTextChunkWritten = false;
+		FString Error;
+		FTextChunkDiagnostics TextChunkDiagnostics;
+	};
+
+	DECLARE_DELEGATE_OneParam(FOnPrintWidgetFinished, const FPrintWidgetResult&);
+}
+
 /**
  * An optional class to specify when printing the widget.
  */
@@ -90,4 +118,16 @@ public:
 
 	// The widget to search for a graph editor to draw on.
 	TSharedPtr<SWidget> SearchTarget;
+
+	// Treat missing or failed embedded widget info as a failed print.
+	bool bFailIfWidgetInfoNotWritten;
+
+	// The selected printer class name, filled by UWidgetPrinter before printing.
+	FString PrinterClassName;
+
+	// Details from the latest GraphEditor text chunk export/import check.
+	GraphPrinter::FTextChunkDiagnostics TextChunkDiagnostics;
+
+	// Native completion callback used by automation and remote control.
+	GraphPrinter::FOnPrintWidgetFinished OnPrintFinished;
 };

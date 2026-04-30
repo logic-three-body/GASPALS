@@ -257,274 +257,12 @@ function Ensure-Case31AutomationScript {
 
     $editorRoot = Ensure-ReferenceDirectory -Path (Join-Path $SampleRoot 'Assets\Editor')
     $scriptPath = Join-Path $editorRoot 'Case31Automation.cs'
-    $scriptText = @'
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using UnityEditor;
-using UnityEditor.SceneManagement;
-using Unity.Barracuda;
-using UnityEngine;
-
-public static class Case31Automation
-{
-    private static string ResultPath => Environment.GetEnvironmentVariable("CASE31_RESULT_PATH");
-
-    private static void WriteResult(string status, IEnumerable<string> lines)
-    {
-        if (string.IsNullOrWhiteSpace(ResultPath))
-        {
-            return;
-        }
-
-        var payload = new List<string> { status };
-        if (lines != null)
-        {
-            payload.AddRange(lines.Where(line => !string.IsNullOrWhiteSpace(line)));
-        }
-
-        Directory.CreateDirectory(Path.GetDirectoryName(ResultPath) ?? ".");
-        File.WriteAllLines(ResultPath, payload);
+    $templatePath = Join-Path $PSScriptRoot 'Case31Automation.Template.cs'
+    if (-not (Test-Path $templatePath)) {
+        throw "Case 31 automation template was not found: $templatePath"
     }
 
-    private static void Fail(Exception ex)
-    {
-        WriteResult("FAIL", new[] { ex.ToString() });
-        EditorApplication.Exit(1);
-    }
-
-    private static string ResolveScenePath()
-    {
-        var projectRoot = Path.GetDirectoryName(Application.dataPath) ?? ".";
-        var exactScene = Path.Combine(projectRoot, "Assets", "Scenes", "Motion Matching.unity");
-        if (File.Exists(exactScene))
-        {
-            return "Assets/Scenes/Motion Matching.unity";
-        }
-
-        var sceneGuid = AssetDatabase.FindAssets("t:Scene")
-            .FirstOrDefault(guid => AssetDatabase.GUIDToAssetPath(guid).EndsWith(".unity", StringComparison.OrdinalIgnoreCase));
-        if (string.IsNullOrWhiteSpace(sceneGuid))
-        {
-            throw new FileNotFoundException("Could not resolve a Unity scene for case 31 automation.");
-        }
-
-        return AssetDatabase.GUIDToAssetPath(sceneGuid);
-    }
-
-    private static Gameplay[] FindGameplays()
-    {
-        return Resources.FindObjectsOfTypeAll<Gameplay>()
-            .Where(gameplay => gameplay != null && gameplay.gameObject.scene.IsValid())
-            .OrderBy(gameplay => gameplay.name)
-            .ToArray();
-    }
-
-    private static Gameplay[] SelectTargetGameplays(Gameplay[] gameplays)
-    {
-        var preferred = gameplays
-            .Where(gameplay =>
-            {
-                var prefabPath = gameplay.mm?.prefab != null ? AssetDatabase.GetAssetPath(gameplay.mm.prefab) : string.Empty;
-                return prefabPath.IndexOf("/Lafan/", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       gameplay.name.IndexOf("lafan", StringComparison.OrdinalIgnoreCase) >= 0;
-            })
-            .ToArray();
-
-        if (preferred.Length > 0)
-        {
-            return preferred;
-        }
-
-        return gameplays.Take(1).ToArray();
-    }
-
-    private static string GetPrefabPath(Gameplay gameplay)
-    {
-        return gameplay.mm?.prefab != null ? AssetDatabase.GetAssetPath(gameplay.mm.prefab) : string.Empty;
-    }
-
-    private static string GetOnnxDirectory(Gameplay gameplay)
-    {
-        var prefabPath = GetPrefabPath(gameplay);
-        if (string.IsNullOrWhiteSpace(prefabPath))
-        {
-            return string.Empty;
-        }
-
-        var relativeDir = Path.GetDirectoryName(prefabPath) ?? string.Empty;
-        return Path.Combine(relativeDir, "ONNX").Replace("\\", "/");
-    }
-
-    private static NNModel LoadModelAsset(string prefix, string onnxDir, List<string> lines)
-    {
-        if (string.IsNullOrWhiteSpace(onnxDir) || !AssetDatabase.IsValidFolder(onnxDir))
-        {
-            throw new DirectoryNotFoundException("Could not resolve an ONNX directory for prefix '" + prefix + "'.");
-        }
-
-        var assetPath = AssetDatabase.FindAssets(prefix, new[] { onnxDir })
-            .Select(AssetDatabase.GUIDToAssetPath)
-            .Where(path =>
-                path.EndsWith(".onnx", StringComparison.OrdinalIgnoreCase) &&
-                Path.GetFileNameWithoutExtension(path).StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(path => path.Length)
-            .FirstOrDefault();
-
-        if (string.IsNullOrWhiteSpace(assetPath))
-        {
-            throw new FileNotFoundException("Could not resolve ONNX asset for prefix '" + prefix + "'.", onnxDir);
-        }
-
-        AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceUpdate);
-        var model = AssetDatabase.LoadAssetAtPath<NNModel>(assetPath);
-        if (model == null)
-        {
-            var mainAsset = AssetDatabase.LoadMainAssetAtPath(assetPath);
-            var assetType = mainAsset != null ? mainAsset.GetType().FullName : "null";
-            throw new NullReferenceException("ONNX asset '" + assetPath + "' did not import as NNModel. Main asset type: " + assetType);
-        }
-
-        lines.Add(prefix + "=" + assetPath);
-        return model;
-    }
-
-    private static void EnsureGameplayInferenceAssets(Gameplay gameplay, List<string> lines)
-    {
-        var onnxDir = GetOnnxDirectory(gameplay);
-        lines.Add("Prefab=" + GetPrefabPath(gameplay));
-        lines.Add("OnnxDir=" + onnxDir);
-
-        gameplay.mm.decompressorParams = LoadModelAsset("decompressor", onnxDir, lines);
-        gameplay.mm.projectorParams = LoadModelAsset("projector", onnxDir, lines);
-        gameplay.mm.stepperParams = LoadModelAsset("stepper", onnxDir, lines);
-    }
-
-    public static void ExtractDataFromSample()
-    {
-        try
-        {
-            var scenePath = ResolveScenePath();
-            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-            var gameplays = FindGameplays();
-            if (gameplays.Length == 0)
-            {
-                throw new InvalidOperationException("No Gameplay components were found in the loaded scene.");
-            }
-
-            var selectedGameplays = SelectTargetGameplays(gameplays);
-
-            var lines = new List<string> { "Scene=" + scenePath };
-            var projectRoot = Path.GetDirectoryName(Application.dataPath) ?? ".";
-
-            foreach (var gameplay in selectedGameplays)
-            {
-                gameplay.ExtractData();
-                if (gameplay.mm?.prefab == null)
-                {
-                    throw new InvalidOperationException("Gameplay '" + gameplay.name + "' does not have a prefab assigned.");
-                }
-
-                var prefabPath = AssetDatabase.GetAssetPath(gameplay.mm.prefab);
-                if (string.IsNullOrWhiteSpace(prefabPath))
-                {
-                    throw new InvalidOperationException("Gameplay '" + gameplay.name + "' prefab path could not be resolved.");
-                }
-
-                var relativeDir = Path.GetDirectoryName(prefabPath) ?? string.Empty;
-                var databaseDir = Path.Combine(projectRoot, relativeDir, "Database");
-                var required = new[] { "XData.txt", "YData.txt", "HierarchyData.txt" };
-                foreach (var requiredFile in required)
-                {
-                    var filePath = Path.Combine(databaseDir, requiredFile);
-                    if (!File.Exists(filePath))
-                    {
-                        throw new FileNotFoundException("Expected extracted file was not generated.", filePath);
-                    }
-                }
-
-                lines.Add("Gameplay=" + gameplay.name);
-                lines.Add("Database=" + databaseDir);
-            }
-
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-            WriteResult("PASS", lines);
-            EditorApplication.Exit(0);
-        }
-        catch (Exception ex)
-        {
-            Fail(ex);
-        }
-    }
-
-    public static void ValidateInference()
-    {
-        try
-        {
-            var scenePath = ResolveScenePath();
-            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-
-            var gameplays = FindGameplays();
-            if (gameplays.Length == 0)
-            {
-                throw new InvalidOperationException("No Gameplay components were found in the loaded scene.");
-            }
-
-            var selectedGameplays = SelectTargetGameplays(gameplays);
-
-            var lines = new List<string> { "Scene=" + scenePath };
-            foreach (var gameplay in selectedGameplays)
-            {
-                if (gameplay.mm == null)
-                {
-                    throw new InvalidOperationException("Gameplay '" + gameplay.name + "' is missing MotionMatching configuration.");
-                }
-
-                if (gameplay.input == null)
-                {
-                    gameplay.input = new MMInput.MMInput();
-                }
-
-                if (gameplay.input.trajectory == null || gameplay.input.trajectory.Length != 3)
-                {
-                    gameplay.input.trajectory = new Vector3[3];
-                }
-
-                gameplay.input.defaultLength = gameplay.input.defaultLength > 0f ? gameplay.input.defaultLength : 1f;
-                gameplay.input.acc = gameplay.input.acc > 0f ? gameplay.input.acc : 4f;
-                gameplay.input.decc = gameplay.input.decc > 0f ? gameplay.input.decc : 4f;
-                gameplay.input.trajectory[0] = new Vector3(0.15f, 0f, 0.25f);
-                gameplay.input.trajectory[1] = new Vector3(0.30f, 0f, 0.50f);
-                gameplay.input.trajectory[2] = new Vector3(0.45f, 0f, 0.75f);
-
-                gameplay.mm.enableDecompressor = true;
-                gameplay.mm.enableProjector = true;
-                gameplay.mm.enableStepper = true;
-                gameplay.mm.projectorFreq = 1f;
-                EnsureGameplayInferenceAssets(gameplay, lines);
-
-                gameplay.mm.Build(gameplay.gameObject);
-                gameplay.mm.Matching(ref gameplay.input);
-                gameplay.mm.Matching(ref gameplay.input);
-                gameplay.mm.DisposeTensors();
-
-                lines.Add("Gameplay=" + gameplay.name);
-            }
-
-            WriteResult("PASS", lines);
-            EditorApplication.Exit(0);
-        }
-        catch (Exception ex)
-        {
-            Fail(ex);
-        }
-    }
-}
-'@
+    $scriptText = Get-Content -Path $templatePath -Raw
 
     $current = if (Test-Path $scriptPath) { Get-Content -Path $scriptPath -Raw } else { '' }
     if ($current -ne $scriptText) {
@@ -946,6 +684,154 @@ function Invoke-Case31UnityAutomation {
     }
 }
 
+function ConvertFrom-Case31DetailLine {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Line
+    )
+
+    $record = [ordered]@{
+        Raw = $Line
+    }
+
+    foreach ($segment in ($Line -split ';')) {
+        if ($segment -match '^(?<Key>[^=]+)=(?<Value>.*)$') {
+            $record[$matches.Key.Trim()] = $matches.Value.Trim()
+        }
+    }
+
+    return [pscustomobject]$record
+}
+
+function Get-Case31DetailRecords {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string[]]$Details
+    )
+
+    return @(
+        foreach ($line in $Details) {
+            if (-not [string]::IsNullOrWhiteSpace($line) -and $line.Contains('=')) {
+                ConvertFrom-Case31DetailLine -Line $line
+            }
+        }
+    )
+}
+
+function Get-Case31DetailRecord {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]]$Records,
+        [Parameter(Mandatory = $true)]
+        [string]$Stage,
+        [Parameter(Mandatory = $true)]
+        [string]$Gameplay,
+        [string]$Mode = ''
+    )
+
+    return @(
+        $Records |
+        Where-Object {
+            $_.PSObject.Properties.Name -contains 'Stage' -and $_.Stage -eq $Stage -and
+            $_.PSObject.Properties.Name -contains 'Gameplay' -and $_.Gameplay -eq $Gameplay -and
+            ([string]::IsNullOrWhiteSpace($Mode) -or (($_.PSObject.Properties.Name -contains 'Mode') -and $_.Mode -eq $Mode))
+        }
+    ) | Select-Object -First 1
+}
+
+function Get-Case31Assessment {
+    param(
+        [Parameter(Mandatory = $true)]
+        [object[]]$ExtractRecords,
+        [Parameter(Mandatory = $true)]
+        [object[]]$ValidateRecords
+    )
+
+    $notes = New-Object System.Collections.Generic.List[string]
+    $missing = New-Object System.Collections.Generic.List[string]
+
+    $extractLafan = Get-Case31DetailRecord -Records $ExtractRecords -Stage 'Extract' -Gameplay 'Lafan'
+    $extractBunny = Get-Case31DetailRecord -Records $ExtractRecords -Stage 'Extract' -Gameplay 'Bunny'
+    $lafanPredicted = Get-Case31DetailRecord -Records $ValidateRecords -Stage 'Validate' -Gameplay 'Lafan' -Mode 'predicted'
+    $bunnyGroundTruth = Get-Case31DetailRecord -Records $ValidateRecords -Stage 'Validate' -Gameplay 'Bunny' -Mode 'ground-truth'
+    $bunnyPredicted = Get-Case31DetailRecord -Records $ValidateRecords -Stage 'Validate' -Gameplay 'Bunny' -Mode 'predicted'
+    $bunnyGroundTruthVisual = Get-Case31DetailRecord -Records $ValidateRecords -Stage 'Visual' -Gameplay 'Bunny' -Mode 'ground-truth'
+    $bunnyPredictedVisual = Get-Case31DetailRecord -Records $ValidateRecords -Stage 'Visual' -Gameplay 'Bunny' -Mode 'predicted'
+
+    foreach ($required in @(
+        @{ Name = 'Extract:Lafan'; Record = $extractLafan },
+        @{ Name = 'Extract:Bunny'; Record = $extractBunny },
+        @{ Name = 'Validate:Lafan:predicted'; Record = $lafanPredicted },
+        @{ Name = 'Validate:Bunny:ground-truth'; Record = $bunnyGroundTruth },
+        @{ Name = 'Validate:Bunny:predicted'; Record = $bunnyPredicted },
+        @{ Name = 'Visual:Bunny:ground-truth'; Record = $bunnyGroundTruthVisual },
+        @{ Name = 'Visual:Bunny:predicted'; Record = $bunnyPredictedVisual }
+    )) {
+        if ($null -eq $required.Record) {
+            $missing.Add($required.Name)
+        }
+    }
+
+    if ($missing.Count -gt 0) {
+        return [pscustomobject]@{
+            Status  = 'BLOCKED'
+            Summary = 'Case 31 is blocked because the required Unity extraction and validation records were incomplete.'
+            Notes   = @("Missing required automation records: $($missing -join ', ')")
+        }
+    }
+
+    $lafanPass = $lafanPredicted.Status -eq 'PASS'
+    $bunnyPass = @($bunnyGroundTruth, $bunnyPredicted, $bunnyGroundTruthVisual, $bunnyPredictedVisual) |
+        Where-Object { $_.Status -ne 'PASS' } |
+        Measure-Object |
+        Select-Object -ExpandProperty Count
+
+    if ($extractLafan.Status -ne 'PASS' -or $extractBunny.Status -ne 'PASS') {
+        return [pscustomobject]@{
+            Status  = 'BLOCKED'
+            Summary = 'Case 31 is blocked because Unity extraction did not complete for both Lafan and Bunny.'
+            Notes   = @(
+                "Lafan extract status: $($extractLafan.Status)"
+                "Bunny extract status: $($extractBunny.Status)"
+            )
+        }
+    }
+
+    if (-not $lafanPass) {
+        return [pscustomobject]@{
+            Status  = 'BLOCKED'
+            Summary = 'Case 31 is blocked because Lafan did not pass the stable inference gate.'
+            Notes   = @("Lafan predicted validation failed: $($lafanPredicted.Issue) $($lafanPredicted.Detail)".Trim())
+        }
+    }
+
+    $notes.Add("Lafan predicted validation status: $($lafanPredicted.Status)")
+    $notes.Add("Bunny ground-truth validation status: $($bunnyGroundTruth.Status)")
+    $notes.Add("Bunny predicted validation status: $($bunnyPredicted.Status)")
+    $notes.Add("Bunny ground-truth visual status: $($bunnyGroundTruthVisual.Status)")
+    $notes.Add("Bunny predicted visual status: $($bunnyPredictedVisual.Status)")
+
+    if ($bunnyPass -eq 0) {
+        return [pscustomobject]@{
+            Status  = 'PASS'
+            Summary = 'Validated case 31 as a dual-path Unity pipeline: Lafan is the stable learning path, and Bunny also passed the advanced runtime and visual gates.'
+            Notes   = $notes.ToArray()
+        }
+    }
+
+    foreach ($record in @($bunnyGroundTruth, $bunnyPredicted, $bunnyGroundTruthVisual, $bunnyPredictedVisual)) {
+        if ($record.Status -ne 'PASS') {
+            $notes.Add("Known Bunny issue [$($record.Stage)/$($record.Mode)]: $($record.Issue) $($record.Detail)".Trim())
+        }
+    }
+
+    return [pscustomobject]@{
+        Status  = 'MANUAL'
+        Summary = 'Validated Lafan as the stable learning path, but Bunny still fails the advanced runtime or visual gate and remains a known issue.'
+        Notes   = $notes.ToArray()
+    }
+}
+
 function Get-Case31DatabaseSource {
     param(
         [Parameter(Mandatory = $true)]
@@ -1222,6 +1108,9 @@ function Invoke-ReferenceCase31Test {
     $extractRun = Invoke-Case31UnityAutomation -Paths $paths -SampleRoot $sampleRoot -MethodName 'Case31Automation.ExtractDataFromSample' -LogStem 'unity-extract'
     $train = Invoke-Case31Training -Context $Context -Paths $paths -SampleRoot $sampleRoot
     $validateRun = Invoke-Case31UnityAutomation -Paths $paths -SampleRoot $sampleRoot -MethodName 'Case31Automation.ValidateInference' -LogStem 'unity-validate'
+    $extractRecords = @(Get-Case31DetailRecords -Details @($extractRun.Details))
+    $validateRecords = @(Get-Case31DetailRecords -Details @($validateRun.Details))
+    $assessment = Get-Case31Assessment -ExtractRecords $extractRecords -ValidateRecords $validateRecords
 
     $notes = New-Object System.Collections.Generic.List[string]
     foreach ($detail in @($extractRun.Details)) {
@@ -1230,6 +1119,9 @@ function Invoke-ReferenceCase31Test {
     $notes.Add("Database source used: $($train.DatabaseSource)")
     foreach ($detail in @($validateRun.Details)) {
         $notes.Add("[validate] $detail")
+    }
+    foreach ($assessmentNote in @($assessment.Notes)) {
+        $notes.Add("[assessment] $assessmentNote")
     }
 
     $sampleDatabase = Join-Path $sampleRoot 'Assets\Motion Matching\Database'
@@ -1240,8 +1132,7 @@ function Invoke-ReferenceCase31Test {
         }
     }
 
-    $summary = 'Ran Unity extraction, trained the parameterized Python models, synced outputs back to the sample, and validated Unity-side inference initialization.'
-    return New-ReferenceResult -CaseId $script:CaseId -Stage 'test' -Status 'PASS' -Summary $summary -Notes $notes.ToArray() -Artifacts @($train.Artifacts + $sampleArtifacts + $compatibilityArtifacts + @($extractRun.LogPath, $extractRun.ResultPath, $validateRun.LogPath, $validateRun.ResultPath))
+    return New-ReferenceResult -CaseId $script:CaseId -Stage 'test' -Status $assessment.Status -Summary $assessment.Summary -Notes $notes.ToArray() -Artifacts @($train.Artifacts + $sampleArtifacts + $compatibilityArtifacts + @($extractRun.LogPath, $extractRun.ResultPath, $validateRun.LogPath, $validateRun.ResultPath))
 }
 
 if ($null -eq $Context -and $MyInvocation.InvocationName -ne '.') {

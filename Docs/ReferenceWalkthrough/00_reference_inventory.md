@@ -26,7 +26,7 @@ git submodule status --recursive
 | `11` | `References/Learned_Motion_Matching_Training/Learned_Motion_Matching_UE5` | thesis + README + UE source | PASS |
 | `20` | `References/ControlOperators` | README + upstream articles | PASS |
 | `30` | `References/Motion-Matching` | README + upstream articles | PASS |
-| `31` | `References/Learned-Motion-Matching` | README + release sample | PASS |
+| `31` | `References/Learned-Motion-Matching` | README + release sample | MANUAL |
 | `40` | `References/Unreal-3rd-Person-Parkour` | source-first | PASS |
 
 ## Automation Entry
@@ -42,7 +42,7 @@ powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthr
 - `11`: start the UE companion with `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 11 -Smoke` or open `References\Learned_Motion_Matching_Training\Learned_Motion_Matching_UE5\Testing.uproject` in `UE_5.3`
 - `20`: start the demo with `References\ControlOperators\.venv\Scripts\python.exe controller.py` after setup, or use `-Cases 20 -Smoke`
 - `30`: start the desktop runtime with `References\Motion-Matching\controller.exe --lmm-enabled` after build, or use `-Cases 30 -Smoke`
-- `31`: open `Saved\_l31\Learned Motion Matching` with Unity 2021.1.22f1c1, or use `-Cases 31 -Smoke` for the scripted path
+- `31`: use `Lafan` as the recommended learner path in `Saved\_l31\Learned Motion Matching`, and use `Bunny` only as the advanced diagnostic path until the dual gate returns `PASS`
 - `40`: open `Saved\ReferenceCases\<timestamp>\case-40\ParkourSidecar\GameAnimationSample.uproject` with UE 5.4, or use `-Cases 40 -Smoke`
 
 ## Output Layout
@@ -57,5 +57,5 @@ powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthr
 - `10` and `11` are now validated as a linked training pipeline plus UE5 companion consumption path.
 - `20` is validated through training plus a live `controller.py` demo launch.
 - `30` is validated as a full data preparation, training, and runtime inference loop.
-- `31` is now validated through Unity extraction, parameterized PyTorch training, ONNX sync, and Barracuda-side validation.
+- `31` is learner-usable through the Lafan path, but remains `MANUAL` overall because Bunny still has a known runtime pose / visual-stability issue under dual-gate validation.
 - `40` is validated through sidecar project generation, build, and editor probe.

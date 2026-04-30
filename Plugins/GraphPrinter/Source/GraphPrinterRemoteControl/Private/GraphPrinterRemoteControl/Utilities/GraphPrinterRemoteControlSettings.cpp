@@ -16,25 +16,29 @@ UGraphPrinterRemoteControlSettings::UGraphPrinterRemoteControlSettings()
 {
 }
 
+void UGraphPrinterRemoteControlSettings::Reconnect()
+{
+	OnRemoteControlDisabled.Broadcast();
+	if (bEnableRemoteControl)
+	{
+		OnRemoteControlEnabled.Broadcast(ServerURL);
+	}
+}
+
 void UGraphPrinterRemoteControlSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	if (PropertyChangedEvent.MemberProperty == nullptr)
 	{
+		Reconnect();
 		return;
 	}
 
-	if (PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UGraphPrinterRemoteControlSettings, bEnableRemoteControl))
+	if (PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UGraphPrinterRemoteControlSettings, bEnableRemoteControl) ||
+		PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UGraphPrinterRemoteControlSettings, ServerURL))
 	{
-		if (bEnableRemoteControl)
-		{
-			OnRemoteControlEnabled.Broadcast(ServerURL);
-		}
-		else
-		{
-			OnRemoteControlDisabled.Broadcast();
-		}
+		Reconnect();
 	}
 }
 

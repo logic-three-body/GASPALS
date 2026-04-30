@@ -8,6 +8,7 @@
 #include "GenericGraphPrinter/Utilities/GenericGraphPrinterUtils.h"
 #include "GenericGraphPrinter/Types/PrintGraphOptions.h"
 #include "GraphPrinterGlobals/GraphPrinterGlobals.h"
+#include "Algo/Sort.h"
 #include "SGraphEditorImpl.h"
 #include "EdGraphUtilities.h"
 #include "Widgets/Text/STextBlock.h"
@@ -67,25 +68,47 @@ namespace GraphPrinter
 		// IInnerWidgetPrinter interface.
 		virtual bool CanPrintWidget() const override
 		{
-			if (Super::CanPrintWidget())
+			if (!Super::CanPrintWidget())
 			{
-				if (PrintOptions->PrintScope == UPrintWidgetOptions::EPrintScope::Selected)
-				{
-					const TSharedPtr<SGraphEditorImpl> GraphEditor = FindTargetWidget(PrintOptions->SearchTarget);
-					if (GraphEditor.IsValid())
-					{
-						const TSet<UObject*>& SelectedNodes = GraphEditor->GetSelectedNodes();
-						if (SelectedNodes.Num() == 0)
-						{
-							return false;
-						}
-					}
-				}
-				
-				return true;
+				return false;
 			}
 
-			return false;
+			const TSharedPtr<SGraphEditorImpl> GraphEditor = FindTargetWidget(PrintOptions->SearchTarget);
+			if (!GraphEditor.IsValid())
+			{
+				return false;
+			}
+
+			if (PrintOptions->PrintScope == UPrintWidgetOptions::EPrintScope::All)
+			{
+				const UEdGraph* CurrentGraph = GraphEditor->GetCurrentGraph();
+				return IsValid(CurrentGraph) && (CurrentGraph->Nodes.Num() > 0);
+			}
+
+			if (PrintOptions->PrintScope == UPrintWidgetOptions::EPrintScope::Selected)
+			{
+				if (PrintOptions->ExplicitNodesToPrint.Num() > 0)
+				{
+					const UEdGraph* CurrentGraph = GraphEditor->GetCurrentGraph();
+					for (const TWeakObjectPtr<UEdGraphNode>& ExplicitNode : PrintOptions->ExplicitNodesToPrint)
+					{
+						const UEdGraphNode* Node = ExplicitNode.Get();
+						if (IsValid(Node) && Node->GetGraph() == CurrentGraph)
+						{
+							return true;
+						}
+					}
+					return false;
+				}
+
+				const TSet<UObject*>& SelectedNodes = GraphEditor->GetSelectedNodes();
+				if (SelectedNodes.Num() == 0)
+				{
+					return false;
+				}
+			}
+
+			return true;
 		}
 		virtual bool CanRestoreWidget() const override
 		{
@@ -119,6 +142,24 @@ namespace GraphPrinter
 			if (PrintOptions->PrintScope == UPrintWidgetOptions::EPrintScope::All)
 			{
 				Widget->SelectAllNodes();
+			}
+			else if (
+				PrintOptions->PrintScope == UPrintWidgetOptions::EPrintScope::Selected &&
+				PrintOptions->ExplicitNodesToPrint.Num() > 0
+			)
+			{
+				const UEdGraph* CurrentGraph = Widget->GetCurrentGraph();
+				Widget->ClearSelectionSet();
+				for (const TWeakObjectPtr<UEdGraphNode>& ExplicitNode : PrintOptions->ExplicitNodesToPrint)
+				{
+					if (UEdGraphNode* GraphNode = ExplicitNode.Get())
+					{
+						if (GraphNode->GetGraph() == CurrentGraph)
+						{
+							Widget->SetNodeSelection(GraphNode, true);
+						}
+					}
+				}
 			}
 		}
 		virtual bool CalculateDrawSize(FVector2D& DrawSize) override
@@ -208,16 +249,91 @@ namespace GraphPrinter
 		}
 		virtual FString GetWidgetTitle() override
 		{
+			if (!PrintOptions->FilenameBaseOverride.IsEmpty())
+			{
+				return PrintOptions->FilenameBaseOverride;
+			}
+
 			FString Title;
 			GetGraphTitle(Widget, Title);
 			return Title;
 		}
+		void PopulateTextChunkDiagnostics(
+			const UEdGraph* CurrentGraph,
+			const FGraphPanelSelectionSet& Nodes,
+			const FString& ExportedText,
+			const bool bCanImportNodesFromText,
+			const FString& FailureStage
+		) const
+		{
+			if (!IsValid(PrintOptions))
+			{
+				return;
+			}
+
+			FTextChunkDiagnostics Diagnostics;
+			if (IsValid(CurrentGraph))
+			{
+				Diagnostics.GraphClass = CurrentGraph->GetClass()->GetName();
+				Diagnostics.GraphPath = CurrentGraph->GetPathName();
+			}
+			Diagnostics.ExportedTextLength = ExportedText.Len();
+			Diagnostics.bExportedTextEmpty = ExportedText.IsEmpty();
+			Diagnostics.bCanImportNodesFromText = bCanImportNodesFromText;
+			Diagnostics.FailureStage = FailureStage;
+
+			TArray<UEdGraphNode*> SortedNodes;
+			for (UObject* NodeObject : Nodes)
+			{
+				if (UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObject))
+				{
+					SortedNodes.Add(Node);
+				}
+			}
+			Algo::Sort(
+				SortedNodes,
+				[](const UEdGraphNode* Left, const UEdGraphNode* Right)
+				{
+					return GetPathNameSafe(Left) < GetPathNameSafe(Right);
+				}
+			);
+
+			Diagnostics.NodeCount = SortedNodes.Num();
+			for (const UEdGraphNode* Node : SortedNodes)
+			{
+				Diagnostics.NodeClasses.Add(GetNameSafe(Node->GetClass()));
+				const FString NodeTitle = Node->GetNodeTitle(ENodeTitleType::ListView).ToString();
+				Diagnostics.NodeTitles.Add(NodeTitle.IsEmpty() ? Node->GetName() : NodeTitle);
+			}
+
+			PrintOptions->TextChunkDiagnostics = Diagnostics;
+		}
 		virtual bool WriteWidgetInfoToTextChunk() override
 		{
 #ifdef WITH_TEXT_CHUNK_HELPER
+			UEdGraph* CurrentGraph = Widget.IsValid() ? Widget->GetCurrentGraph() : nullptr;
 			FString ExportedText;
 			FEdGraphUtilities::ExportNodesToText(GenericGraphPrinterParams.NodesToPrint, ExportedText);
-			if (!FEdGraphUtilities::CanImportNodesFromText(Widget->GetCurrentGraph(), ExportedText))
+			const bool bCanImportNodesFromText =
+				IsValid(CurrentGraph) &&
+				!ExportedText.IsEmpty() &&
+				FEdGraphUtilities::CanImportNodesFromText(CurrentGraph, ExportedText);
+
+			FString FailureStage = TEXT("OK");
+			if (!IsValid(CurrentGraph))
+			{
+				FailureStage = TEXT("InvalidGraph");
+			}
+			else if (ExportedText.IsEmpty())
+			{
+				FailureStage = TEXT("ExportNodesToTextEmpty");
+			}
+			else if (!bCanImportNodesFromText)
+			{
+				FailureStage = TEXT("CanImportNodesFromTextFalse");
+			}
+			PopulateTextChunkDiagnostics(CurrentGraph, GenericGraphPrinterParams.NodesToPrint, ExportedText, bCanImportNodesFromText, FailureStage);
+			if (FailureStage != TEXT("OK"))
 			{
 				return false;
 			}
@@ -229,10 +345,21 @@ namespace GraphPrinter
 			const TSharedPtr<TextChunkHelper::ITextChunk> TextChunk = TextChunkHelper::ITextChunkHelper::Get().CreateTextChunk(WidgetPrinterParams.Filename);
 			if (!TextChunk.IsValid())
 			{
+				PopulateTextChunkDiagnostics(CurrentGraph, GenericGraphPrinterParams.NodesToPrint, ExportedText, bCanImportNodesFromText, TEXT("TextChunkCreateFailed"));
 				return false;
 			}
-			return TextChunk->Write(MapToWrite);
+			const bool bTextChunkWritten = TextChunk->Write(MapToWrite);
+			if (!bTextChunkWritten)
+			{
+				PopulateTextChunkDiagnostics(CurrentGraph, GenericGraphPrinterParams.NodesToPrint, ExportedText, bCanImportNodesFromText, TEXT("TextChunkWriteFailed"));
+			}
+			return bTextChunkWritten;
 #else
+			if (IsValid(PrintOptions))
+			{
+				PrintOptions->TextChunkDiagnostics = FTextChunkDiagnostics();
+				PrintOptions->TextChunkDiagnostics.FailureStage = TEXT("TextChunkHelperUnavailable");
+			}
 			return false;
 #endif
 		}

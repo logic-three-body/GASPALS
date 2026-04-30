@@ -21,7 +21,7 @@
 | `11` | `References/Learned_Motion_Matching_Training/Learned_Motion_Matching_UE5` | `UE 5.3.2` | `Tools/reference/cases/Case-10-11-LMM.ps1` | PASS |
 | `20` | `References/ControlOperators` | `uv` on Python 3.11 | `Tools/reference/cases/Case-20-ControlOperators.ps1` | PASS |
 | `30` | `References/Motion-Matching` | Python 3.11 + raylib + g++/make | `Tools/reference/cases/Case-30-MotionMatching.ps1` | PASS |
-| `31` | `References/Learned-Motion-Matching` | Python 3.11 + Unity 2021.1.22f1c1 | `Tools/reference/cases/Case-31-LearnedMotionMatching.ps1` | PASS |
+| `31` | `References/Learned-Motion-Matching` | Python 3.11 + Unity 2021.1.22f1c1 | `Tools/reference/cases/Case-31-LearnedMotionMatching.ps1` | MANUAL |
 | `40` | `References/Unreal-3rd-Person-Parkour` | `UE 5.4`, fallback `UE 5.5` | `Tools/reference/cases/Case-40-Parkour.ps1` | PASS |
 
 ## Startup Matrix
@@ -32,7 +32,7 @@
 | `11` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 11 -Smoke` or open `Learned_Motion_Matching_UE5\Testing.uproject` with `UE_5.3` |
 | `20` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 20 -Smoke` or run `References\ControlOperators\.venv\Scripts\python.exe controller.py` |
 | `30` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 30 -Smoke` or launch `References\Motion-Matching\controller.exe --lmm-enabled` after build |
-| `31` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 31 -Smoke` or open `Saved\_l31\Learned Motion Matching` with Unity 2021.1.22f1c1 |
+| `31` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 31 -Smoke`, then use `Lafan` as the recommended learning path and `Bunny` as the advanced diagnostic path in `Saved\_l31\Learned Motion Matching` |
 | `40` | `powershell -ExecutionPolicy Bypass -File .\Tools\reference\Test-ReferenceWalkthroughCases.ps1 -Cases 40 -Smoke` or open `Saved\ReferenceCases\<timestamp>\case-40\ParkourSidecar\GameAnimationSample.uproject` with UE 5.4 |
 
 ## External Dependencies

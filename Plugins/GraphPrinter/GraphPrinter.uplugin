@@ -1,4 +1,4 @@
-{
+﻿{
 	"FileVersion": 3,
 	"Version": 3,
 	"VersionName": "3.1",
@@ -22,7 +22,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -33,7 +32,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -44,7 +42,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -55,7 +52,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			],
@@ -67,7 +63,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			],
@@ -79,7 +74,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -90,7 +84,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -101,7 +94,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -112,7 +104,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -123,7 +114,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -134,7 +124,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]
@@ -145,7 +134,6 @@
 			"LoadingPhase": "Default",
 			"WhitelistPlatforms": [
 				"Win64",
-				"Win32",
 				"Mac",
 				"Linux"
 			]

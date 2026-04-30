@@ -1,27 +1,19 @@
 import unreal
 
+
+WS_URL = "ws://127.0.0.1:3000/"
+
 try:
     rc_cls = unreal.load_class(None, "/Script/GraphPrinterRemoteControl.GraphPrinterRemoteControlSettings")
-    if rc_cls:
-        rc_cdo = unreal.get_default_object(rc_cls)
-        unreal.log(f"[RC] CDO: {rc_cdo}")
-
-        rc_cdo.set_editor_property("bEnableRemoteControl", True)
-        rc_cdo.set_editor_property("ServerURL", "ws://127.0.0.1:3000/")
-        unreal.log("[RC] Properties set (bEnableRemoteControl=True, ServerURL=ws://127.0.0.1:3000/)")
-
-        # modify() + set_editor_properties triggers PostEditChangeProperty
-        # which calls OnRemoteControlEnabled.Broadcast(ServerURL) in C++
-        # causing GraphPrinter to actually connect to the WS server
-        rc_cdo.modify()
-        rc_cdo.set_editor_properties({
-            "bEnableRemoteControl": True,
-            "ServerURL": "ws://127.0.0.1:3000/"
-        })
-        unreal.log("[RC] Broadcast triggered — GraphPrinter should connect now")
+    rc_cdo = unreal.get_default_object(rc_cls) if rc_cls else None
+    if not rc_cdo:
+        unreal.log_warning("[RC] GraphPrinterRemoteControlSettings class not found")
     else:
-        unreal.log_warning("[RC] Class not found")
-except Exception as e:
-    unreal.log_error(f"[RC] {e}")
-
-unreal.log("[RC] DONE")
+        rc_cdo.modify()
+        rc_cdo.set_editor_properties({"bEnableRemoteControl": False, "ServerURL": WS_URL})
+        rc_cdo.set_editor_properties({"bEnableRemoteControl": True})
+        if hasattr(rc_cdo, "reconnect"):
+            rc_cdo.reconnect()
+        unreal.log(f"[RC] GraphPrinter remote control enabled: {WS_URL}")
+except Exception as exc:
+    unreal.log_error(f"[RC] {exc}")

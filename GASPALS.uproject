@@ -1,8 +1,15 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "D:/UE/UnrealEngine_Animation_Tech/Engine/Binaries/Win64/UnrealEditor-Win64-Debug.exe",
+	"EngineAssociation": "{1EA256D0-457B-ADF7-67E0-9E9E030BCABD}",
 	"Category": "",
 	"Description": "",
+	"Modules": [
+		{
+			"Name": "GASPALS",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
 	"Plugins": [
 		{
 			"Name": "ModelingToolsEditorMode",

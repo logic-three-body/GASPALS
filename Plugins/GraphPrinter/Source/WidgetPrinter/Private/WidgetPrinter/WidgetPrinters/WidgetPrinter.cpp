@@ -23,6 +23,7 @@ UWidgetPrinter::UWidgetPrinter()
 void UWidgetPrinter::PrintWidget(UPrintWidgetOptions* Options)
 {
 	check(IsValid(Options));
+	Options->PrinterClassName = GetClass()->GetName();
 	CachedPrintOptions = Options;
 
 	// Temporarily excludes the instance from garbage collection to prevent the instance from being destroyed during printer processing.

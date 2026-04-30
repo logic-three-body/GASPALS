@@ -124,12 +124,14 @@ namespace GraphPrinter
 		{
 			if (!IsValid(PrintOptions))
 			{
+				FinishPrint(false, TEXT("Invalid print options."));
 				return;
 			}
 			
 			Widget = FindTargetWidget(PrintOptions->SearchTarget);
 			if (!Widget.IsValid())
 			{
+				FinishPrint(false, TEXT("Failed to find target widget."));
 				return;
 			}
 
@@ -149,6 +151,7 @@ namespace GraphPrinter
 			if (!CalculateDrawSize(WidgetPrinterParams.DrawSize))
 			{
 				FEditorNotification::Fail(LOCTEXT("NotSelectedError", "No widget is selected."));
+				FinishPrint(false, TEXT("No widget is selected."));
 				return;
 			}
 
@@ -169,10 +172,12 @@ namespace GraphPrinter
 
 			if (!bIsPrintableSize)
 			{
+				FFormatNamedArguments Arguments;
+				Arguments.Add(TEXT("DrawSize"), FText::FromString(WidgetPrinterParams.DrawSize.ToString()));
+				Arguments.Add(TEXT("MaxImageSize"), FText::FromString(PrintOptions->MaxImageSize.ToString()));
 				const FText& Message = FText::Format(
 					LOCTEXT("TooLargeSize", "{DrawSize} / {MaxImageSize}\nThe drawing range is too wide.\nIf necessary, change the maximum size from the editor preferences."),
-					FText::FromString(WidgetPrinterParams.DrawSize.ToString()),
-					FText::FromString(PrintOptions->MaxImageSize.ToString())
+					Arguments
 				);
 				FEditorNotification::Fail(
 					Message,
@@ -189,12 +194,14 @@ namespace GraphPrinter
 						)
 					}
 				);
+				FinishPrint(false, TEXT("The drawing range is too wide."));
 				return;
 			}
 
 			if (!WidgetPrinterParams.RenderTarget.IsValid())
 			{
 				FEditorNotification::Fail(LOCTEXT("DrawError", "Failed to draw to render target."));
+				FinishPrint(false, TEXT("Failed to draw to render target."));
 				return;
 			}
 
@@ -451,7 +458,7 @@ namespace GraphPrinter
 				RenderingResult.RenderTarget = WidgetPrinterParams.RenderTarget;
 				RenderingResult.Filename = WidgetPrinterParams.Filename;
 				OnRendered.ExecuteIfBound(RenderingResult);
-				OnPrinterProcessingFinished.ExecuteIfBound();
+				FinishPrint(true);
 			}
 			else
 			{
@@ -469,9 +476,11 @@ namespace GraphPrinter
 			if (!bIsSucceeded)
 			{
 				FEditorNotification::Fail(LOCTEXT("FailedOutputError", "Failed capture widget."));
+				FinishPrint(false, TEXT("Failed capture widget."));
 				return;
 			}
 
+			bool bTextChunkWritten = false;
 			if (PrintOptions->ExportMethod == UPrintWidgetOptions::EExportMethod::ImageFile)
 			{
 				const FString Filename = WidgetPrinterParams.Filename;
@@ -495,17 +504,37 @@ namespace GraphPrinter
 				if (PrintOptions->bIsIncludeWidgetInfoInImageFile &&
 					PrintOptions->ImageWriteOptions.Format == EDesiredImageFormat::PNG)
 				{
-					if (!WriteWidgetInfoToTextChunk())
+					bTextChunkWritten = WriteWidgetInfoToTextChunk();
+					if (!bTextChunkWritten)
 					{
 						FEditorNotification::Fail(LOCTEXT("FailedEmbedWidgetInfoError", "Failed to write widget information to image file."));
+						if (PrintOptions->bFailIfWidgetInfoNotWritten)
+						{
+							FinishPrint(false, TEXT("Failed to write widget information to image file."), false);
+							return;
+						}
 					}
+				}
+				else if (PrintOptions->bFailIfWidgetInfoNotWritten)
+				{
+					FEditorNotification::Fail(LOCTEXT("MissingEmbedWidgetInfoError", "Widget information was required but was not written to the image file."));
+					FinishPrint(false, TEXT("Widget information was required but was not written to the image file."), false);
+					return;
+				}
+#else
+				if (PrintOptions->bFailIfWidgetInfoNotWritten)
+				{
+					FEditorNotification::Fail(LOCTEXT("MissingTextChunkHelperError", "Widget information was required but TextChunkHelper is unavailable."));
+					FinishPrint(false, TEXT("Widget information was required but TextChunkHelper is unavailable."), false);
+					return;
 				}
 #endif
 			}
 #ifdef WITH_CLIPBOARD_IMAGE_EXTENSION
 			else if (PrintOptions->ExportMethod == UPrintWidgetOptions::EExportMethod::Clipboard)
 			{
-				if (CopyImageFileToClipboard())
+				const bool bCopiedToClipboard = CopyImageFileToClipboard();
+				if (bCopiedToClipboard)
 				{
 					FEditorNotification::Success(LOCTEXT("SucceededClipboardCopy", "Succeeded to copy image to clipboard."));
 				}
@@ -515,10 +544,15 @@ namespace GraphPrinter
 				}
 
 				IFileManager::Get().Delete(*WidgetPrinterParams.Filename, false, true);
+				if (!bCopiedToClipboard)
+				{
+					FinishPrint(false, TEXT("Failed to copy image to clipboard."), false);
+					return;
+				}
 			}
 #endif
 
-			OnPrinterProcessingFinished.ExecuteIfBound();
+			FinishPrint(true, FString(), bTextChunkWritten);
 		}
 		// End of IInnerWidgetPrinter interface.
 		
@@ -548,6 +582,23 @@ namespace GraphPrinter
 		virtual bool ShouldAlwaysPrintAll() const
 		{
 			return true;
+		}
+
+		void FinishPrint(const bool bSucceeded, const FString& Error = FString(), const bool bTextChunkWritten = false)
+		{
+			if (IsValid(PrintOptions))
+			{
+				FPrintWidgetResult Result;
+				Result.bSucceeded = bSucceeded;
+				Result.Filename = WidgetPrinterParams.Filename;
+				Result.PrinterClassName = PrintOptions->PrinterClassName;
+				Result.bTextChunkWritten = bTextChunkWritten;
+				Result.Error = Error;
+				Result.TextChunkDiagnostics = PrintOptions->TextChunkDiagnostics;
+				PrintOptions->OnPrintFinished.ExecuteIfBound(Result);
+			}
+
+			OnPrinterProcessingFinished.ExecuteIfBound();
 		}
 		
 	protected:

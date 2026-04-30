@@ -1,5 +1,6 @@
 // Copyright 2020-2026 Naotsun. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class GraphPrinterRemoteControl : ModuleRules
@@ -23,12 +24,28 @@ public class GraphPrinterRemoteControl : ModuleRules
             {
                 "CoreUObject",
                 "Engine",
+                "Slate",
+                "SlateCore",
                 "WebSockets",
+                "Json",
+                "UnrealEd",
+                "Kismet",
+                "BlueprintGraph",
+                "GraphEditor",
                 
                 "GraphPrinterGlobals",
                 "GraphPrinterEditorExtension",
+                "WidgetPrinter",
+                "GenericGraphPrinter",
                 "ClipboardImageExtension",
                 "TextChunkHelper",
+            }
+        );
+
+        PrivateIncludePaths.AddRange(
+            new string[]
+            {
+                Path.Combine(EngineDirectory, "Source", "Editor", "GraphEditor", "Private"),
             }
         );
     }

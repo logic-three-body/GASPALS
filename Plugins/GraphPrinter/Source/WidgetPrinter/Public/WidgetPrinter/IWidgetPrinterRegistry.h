@@ -27,6 +27,10 @@ namespace GraphPrinter
 		
 		// Returns a widget printer that meets the criteria.
 		virtual UWidgetPrinter* FindAvailableWidgetPrinter(UPrintWidgetOptions* Options) const = 0;
+		virtual UWidgetPrinter* FindAvailableWidgetPrinter(
+			UPrintWidgetOptions* Options,
+			const TFunctionRef<bool(const TSubclassOf<UWidgetPrinter>& WidgetPrinterClass)>& ClassPredicate
+		) const = 0;
 		virtual UWidgetPrinter* FindAvailableWidgetPrinter(URestoreWidgetOptions* Options) const = 0;
 
 		// Returns a data structure if the specified widget is supported by any printer.
